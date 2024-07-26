@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #chat-history {
+            margin-bottom: 20px;
+            overflow-y: scroll;
+            max-height: 300px; /* Adjust as needed */
+            padding-right: 10px;
+        }
+        .prompt {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .response {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .recommendations {
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea, input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Groq Project</h1>
+    <div id="chat-container">
+        <div id="chat-history"></div>
+        <form id="prompt-form">
+            <label for="prompt">Enter your prompt:</label><br>
+            <textarea id="prompt" name="prompt" rows="4" placeholder="Type your prompt here..." required></textarea><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+      // Get references to HTML elements
+      const chatHistory = document.getElementById('chat-history'); // Reference to chat history container
+      const promptForm = document.getElementById('prompt-form'); // Reference to prompt form
+  
+      // Event listener for form submission
+      promptForm.addEventListener('submit', async (e) => {
+          e.preventDefault(); // Prevent default form submission behavior
+          
+          // Create FormData object to collect form data
+          const formData = new FormData(promptForm);
+          
+          // Send asynchronous POST request to server
+          const response = await fetch('/submit', {
+              method: 'POST',
+              body: formData
+          });
+  
+          // Handle server response
+          if (response.ok) { // If response status is OK (200)
+              const data = await response.json(); // Parse JSON response data
+              
+              // Display user prompt, bot response, and recommendations
+              displayPrompt(data.prompt);
+              displayResponse(data.response);
+              displayRecommendations(data.recommendations);
+              
+              promptForm.reset(); // Reset the form after submission
+          } else {
+              console.error('Failed to submit prompt'); // Log error if submission fails
+          }
+      });
+  
+      // Function to display user prompt in chat history
+      function displayPrompt(prompt) {
+          const promptElement = document.createElement('div');
+          promptElement.classList.add('prompt'); // Add 'prompt' class to the div
+          promptElement.textContent = `You: ${prompt}`; // Set text content to user prompt
+          chatHistory.appendChild(promptElement); // Append prompt element to chat history container
+          chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll chat history to bottom
+      }
+  
+      // Function to display bot response in chat history
+      function displayResponse(response) {
+          const responseElement = document.createElement('div');
+          responseElement.classList.add('response'); // Add 'response' class to the div
+          responseElement.textContent = `Bot: ${response}`; // Set text content to bot response
+          chatHistory.appendChild(responseElement); // Append response element to chat history container
+          chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll chat history to bottom
+      }
+  
+      // Function to display recommendations in chat history
+      function displayRecommendations(recommendations) {
+          const recommendationsElement = document.createElement('div');
+          recommendationsElement.classList.add('recommendations'); // Add 'recommendations' class to the div
+          recommendationsElement.innerHTML = `Recommendations:<br>${recommendations.replace(/\n/g, '<br>')}`; // Set inner HTML with recommendations, replacing newlines with <br> tags
+          chatHistory.appendChild(recommendationsElement); // Append recommendations element to chat history container
+          chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll chat history to bottom
+      }
+    </script>
+  
+</body>
+</html>
